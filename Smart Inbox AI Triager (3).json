@@ -1,0 +1,586 @@
+{
+  "name": "Smart Inbox AI Triager",
+  "nodes": [
+    {
+      "parameters": {
+        "inputText": "={{ $json.output.issue }}{{ $json.output.intent }}{{ $json.output.keywords }}",
+        "categories": {
+          "categories": [
+            {
+              "category": "Support",
+              "description": "Emails asking for technical help, reporting issues, bugs, errors, troubleshooting, or complaints. User needs assistance with a problem."
+            },
+            {
+              "category": "Service",
+              "description": "Emails requesting general assistance, account updates, information, inquiries, guidance, or non-technical service-related support."
+            },
+            {
+              "category": "Spam",
+              "description": "Irrelevant promotional messages, marketing blasts, scams, phishing attempts, suspicious links, unknown senders, automated advertisements."
+            }
+          ]
+        },
+        "options": {
+          "enableAutoFixing": true
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.textClassifier",
+      "typeVersion": 1.1,
+      "position": [
+        576,
+        192
+      ],
+      "id": "a3e44f9d-1bfc-4109-a4dc-82ebddff4b5a",
+      "name": "Text Classifier"
+    },
+    {
+      "parameters": {
+        "text": "={{ $json.headers.subject }}{{ $json.text }}",
+        "attributes": {
+          "attributes": [
+            {
+              "name": "Sender Name",
+              "description": "Extract sender’s name if present"
+            },
+            {
+              "name": "email",
+              "description": "Extract sender email"
+            },
+            {
+              "name": "issue",
+              "description": "Extract the problem or issue described"
+            },
+            {
+              "name": "intent",
+              "description": "What is the email about"
+            },
+            {
+              "name": "keywords",
+              "description": "Important keywords"
+            }
+          ]
+        },
+        "options": {
+          "systemPromptTemplate": "You are an expert extraction algorithm.\nOnly extract relevant information from the text.\nIf you do not know the value of an attribute asked to extract, you may omit the attribute's value."
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.informationExtractor",
+      "typeVersion": 1.2,
+      "position": [
+        224,
+        192
+      ],
+      "id": "dfff02f4-64cd-4e4b-97ba-5c1c1f21a9cb",
+      "name": "Information Extractor"
+    },
+    {
+      "parameters": {
+        "operation": "addLabels",
+        "messageId": "={{ $('Gmail Trigger').item.json.id }}",
+        "labelIds": [
+          "Label_2837121738845799640"
+        ]
+      },
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.1,
+      "position": [
+        928,
+        384
+      ],
+      "id": "ea467b6d-0a86-40d1-85b8-74999ce2e5f7",
+      "name": "SPAM Label",
+      "webhookId": "4132a1b5-a840-4381-a024-976d5c1e08b0",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "TeADPvdOdkNx3OHQ",
+          "name": "Gmail account 2"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "sendTo": "={{ $('Gmail Trigger').item.json.headers.from }}",
+        "subject": "We Have Received Your Support Request",
+        "emailType": "text",
+        "message": "Hello there,\n\nThank you for reaching out to our support team. We have received your request and created a ticket for you. \nOur support team is reviewing your issue and will get back to you with a resolution as soon as possible.\nWe appreciate your patience and are committed to resolving your issue promptly.\n\nBest regards,\nyaswanth.letsupgrade.hackathon\n\n",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.1,
+      "position": [
+        1600,
+        0
+      ],
+      "id": "3a1a67a7-ef43-4bc1-a92c-4f5cdef4a192",
+      "name": "Reply support",
+      "webhookId": "b30412fd-e1d0-444b-bb7f-c876587068b4",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "TeADPvdOdkNx3OHQ",
+          "name": "Gmail account 2"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "sendTo": "={{ $('Gmail Trigger').item.json.headers.from }}",
+        "subject": "Your Service Request Has Been Received",
+        "emailType": "text",
+        "message": "Hello there,\n\nThank you for contacting us regarding our products/services. We have received your inquiry and our sales team is reviewing your request.\nOne of our representatives will get back to you shortly.\n\nBest regards,\nyaswanth.letsupgrade.hackathon\n",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.1,
+      "position": [
+        1600,
+        192
+      ],
+      "id": "d3cde72d-2422-4957-9c19-bc89bf9bde02",
+      "name": "Reply Service",
+      "webhookId": "b30412fd-e1d0-444b-bb7f-c876587068b4",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "TeADPvdOdkNx3OHQ",
+          "name": "Gmail account 2"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "addLabels",
+        "messageId": "={{ $('Gmail Trigger').item.json.id }}",
+        "labelIds": [
+          "Label_7187702532810070114"
+        ]
+      },
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.1,
+      "position": [
+        928,
+        192
+      ],
+      "id": "a58b35eb-4c75-494c-a261-f7ced25aef4a",
+      "name": "SERVICE Label",
+      "webhookId": "d65f319b-5113-48cf-811e-2237d26b88b2",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "TeADPvdOdkNx3OHQ",
+          "name": "Gmail account 2"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "addLabels",
+        "messageId": "={{ $('Gmail Trigger').item.json.id }}",
+        "labelIds": [
+          "Label_8145173229354931323"
+        ]
+      },
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.1,
+      "position": [
+        928,
+        0
+      ],
+      "id": "02637c68-ab9a-4354-805e-824a59e8f8f3",
+      "name": "SUPPORT Label",
+      "webhookId": "de825142-383c-4e10-9741-b85bc797ad7d",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "TeADPvdOdkNx3OHQ",
+          "name": "Gmail account 2"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "listId": "=691fdc8545992a1975ce98fb",
+        "name": "Service",
+        "description": "=Customer Name: {{ $('Gmail Trigger').item.json.to.value[0].name }}\nReceived On: {{ $('Gmail Trigger').item.json.headers.date }}\nSubject: {{ $('Gmail Trigger').item.json.headers.subject }}\nIssue Description: {{ $('Gmail Trigger').item.json.text }}\nPriority: {{$json[\"urgency\"] || \"Normal\"}}\nAdditional Notes:\n- Attachments: {{$json[\"attachments\"] || \"None\"}}",
+        "additionalFields": {}
+      },
+      "type": "n8n-nodes-base.trello",
+      "typeVersion": 1,
+      "position": [
+        1376,
+        192
+      ],
+      "id": "081e9fdd-33e3-467d-8a22-1bbe37267ee2",
+      "name": "Create a ser card",
+      "credentials": {
+        "trelloApi": {
+          "id": "McomFLGBKTcK1vJh",
+          "name": "Trello account 4"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "pollTimes": {
+          "item": [
+            {
+              "mode": "everyMinute"
+            }
+          ]
+        },
+        "simple": false,
+        "filters": {
+          "sender": ""
+        },
+        "options": {}
+      },
+      "id": "ec7e932a-1a81-4f39-83de-86c3739b93b5",
+      "name": "Gmail Trigger",
+      "type": "n8n-nodes-base.gmailTrigger",
+      "typeVersion": 1,
+      "position": [
+        0,
+        192
+      ],
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "TeADPvdOdkNx3OHQ",
+          "name": "Gmail account 2"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatGoogleGemini",
+      "typeVersion": 1,
+      "position": [
+        656,
+        448
+      ],
+      "id": "c4e67f0a-a3f6-4a17-b18d-7dada79772d7",
+      "name": "Google Gemini Chat Model",
+      "credentials": {
+        "googlePalmApi": {
+          "id": "lFMbkkroDg0dAZQp",
+          "name": "Google Gemini(PaLM) Api account 3"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatGoogleGemini",
+      "typeVersion": 1,
+      "position": [
+        304,
+        416
+      ],
+      "id": "74c688c6-ec07-44b6-a48f-0b25f9bb1526",
+      "name": "Google Gemini Chat Model1",
+      "credentials": {
+        "googlePalmApi": {
+          "id": "lFMbkkroDg0dAZQp",
+          "name": "Google Gemini(PaLM) Api account 3"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "authentication": "oAuth2",
+        "select": "channel",
+        "channelId": {
+          "__rl": true,
+          "value": "C09UZ9CRL72",
+          "mode": "list",
+          "cachedResultName": "support_team_yashlets96854412"
+        },
+        "text": "={{ $('Information Extractor').item.json.output['Sender Name'] }}\n\n{{ $('Information Extractor').item.json.output.intent }}\n\n{{ $('Information Extractor').item.json.output.issue }}\n\nLink To Ticket:{{ $('Create a sup card').item.json.shortUrl }}",
+        "otherOptions": {}
+      },
+      "type": "n8n-nodes-base.slack",
+      "typeVersion": 2.3,
+      "position": [
+        1824,
+        0
+      ],
+      "id": "9f4a96f1-3f52-4b3f-ade6-3c2258ddaccd",
+      "name": "Send a message",
+      "webhookId": "bc39b986-0a04-47a0-967b-62f75d421a01",
+      "credentials": {
+        "slackOAuth2Api": {
+          "id": "448M4JAlZBEKeRDW",
+          "name": "Slack account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "listId": "=691fdc702b60ba8c0f2477eb",
+        "name": "support",
+        "description": "=Customer Name: {{ $('Gmail Trigger').item.json.to.value[0].name }} Received On: {{ $('Gmail Trigger').item.json.headers.date }} Subject: {{ $('Gmail Trigger').item.json.headers.subject }} Issue Description: {{ $('Gmail Trigger').item.json.text }} Priority: {{$json[\"urgency\"] || \"Normal\"}} Additional Notes: - Attachments: {{$json[\"attachments\"] || \"None\"}}",
+        "additionalFields": {}
+      },
+      "type": "n8n-nodes-base.trello",
+      "typeVersion": 1,
+      "position": [
+        1376,
+        0
+      ],
+      "id": "86ed187a-a9be-4ccf-9f0f-c336f035de9e",
+      "name": "Create a sup card",
+      "credentials": {
+        "trelloApi": {
+          "id": "McomFLGBKTcK1vJh",
+          "name": "Trello account 4"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "authentication": "oAuth2",
+        "select": "channel",
+        "channelId": {
+          "__rl": true,
+          "value": "C09UZ9CRL72",
+          "mode": "list",
+          "cachedResultName": "support_team_yashlets96854412"
+        },
+        "text": "={{ $('Information Extractor').item.json.output['Sender Name'] }}\n\n{{ $('Information Extractor').item.json.output.intent }}\n\n{{ $('Information Extractor').item.json.output.issue }}\n\nLink To Ticket:{{ $('Create a ser card').item.json.shortUrl }}",
+        "otherOptions": {}
+      },
+      "type": "n8n-nodes-base.slack",
+      "typeVersion": 2.3,
+      "position": [
+        1824,
+        192
+      ],
+      "id": "eabcebec-5e9f-41f7-8102-e291c5b9974f",
+      "name": "Send a message1",
+      "webhookId": "bc39b986-0a04-47a0-967b-62f75d421a01",
+      "credentials": {
+        "slackOAuth2Api": {
+          "id": "448M4JAlZBEKeRDW",
+          "name": "Slack account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "id-1",
+              "name": "id",
+              "value": "<__PLACEHOLDER_VALUE__Support List ID from Trello__>",
+              "type": "string"
+            }
+          ]
+        },
+        "includeOtherFields": true,
+        "options": {}
+      },
+      "id": "90e210e5-8e2e-4fb2-adae-f6038beffbdd",
+      "name": "Support List ID",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        1152,
+        0
+      ]
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "id-1",
+              "name": "id",
+              "value": "<__PLACEHOLDER_VALUE__Service List ID from Trello__>",
+              "type": "string"
+            }
+          ]
+        },
+        "includeOtherFields": true,
+        "options": {}
+      },
+      "id": "71a8d632-082a-413e-8473-d798df786209",
+      "name": "Service List ID",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        1152,
+        192
+      ]
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Text Classifier": {
+      "main": [
+        [
+          {
+            "node": "SUPPORT Label",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "SERVICE Label",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "SPAM Label",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Information Extractor": {
+      "main": [
+        [
+          {
+            "node": "Text Classifier",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Reply support": {
+      "main": [
+        [
+          {
+            "node": "Send a message",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "SERVICE Label": {
+      "main": [
+        [
+          {
+            "node": "Service List ID",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "SUPPORT Label": {
+      "main": [
+        [
+          {
+            "node": "Support List ID",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Reply Service": {
+      "main": [
+        [
+          {
+            "node": "Send a message1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Create a ser card": {
+      "main": [
+        [
+          {
+            "node": "Reply Service",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Gmail Trigger": {
+      "main": [
+        [
+          {
+            "node": "Information Extractor",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Google Gemini Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Text Classifier",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Google Gemini Chat Model1": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Information Extractor",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Create a sup card": {
+      "main": [
+        [
+          {
+            "node": "Reply support",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Support List ID": {
+      "main": [
+        [
+          {
+            "node": "Create a sup card",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Service List ID": {
+      "main": [
+        [
+          {
+            "node": "Create a ser card",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "91ccc45e-db7c-492d-81e2-1ec618960c64",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "273d81281c1bd9c2311078fbe7cf2a148ac8ac63dbb2c8e036686610bb0afd26"
+  },
+  "id": "fsibRnZsyDpavS3e",
+  "tags": []
+}
