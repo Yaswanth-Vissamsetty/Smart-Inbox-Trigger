@@ -65,7 +65,10 @@ It reduces manual workload, speeds up responses, and ensures **no message is mis
 
 ### 📸 Screenshots
 
-> Upload screenshots to your repository → Update image paths below 👇
+#### Work Flow
+
+<img width="1776" height="652" alt="Screenshot 2025-11-22 133000" src="https://github.com/user-attachments/assets/ac53a8c9-ada1-4d29-a2bf-06b87c361b2c" />
+
 
 #### 1️⃣ Email Labeled as Support
 
@@ -74,7 +77,7 @@ It reduces manual workload, speeds up responses, and ensures **no message is mis
 
 #### 2️⃣ Acknowledgement Email Sent
 
-<img width="1915" height="920" alt="mail" src="https://github.com/user-attachments/assets/45d13460-5464-4fe6-be1a-52b737b5ec75" />
+<img width="1917" height="915" alt="mail-2" src="https://github.com/user-attachments/assets/6ecc0041-daa5-42f2-902d-a628264be2ce" />
 
 
 #### 3️⃣ Trello Card Auto-Created
